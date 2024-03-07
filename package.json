@@ -1,13 +1,21 @@
 {
+  "name": "sh-balance-calculation-service",
+  "version": "1.0.0",
+  "description": "a service that calculates withdrawal balance daily",
+  "main": "src/index.js",
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "start": "npx index.ts && node index.js",
-    "start-dev": "node index.ts"
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
   },
   "dependencies": {
+    "moment": "^2.30.1",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
     "typeorm": "^0.3.20"
