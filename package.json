@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "start": "npx index.ts && node index.js",
+    "start-dev": "node index.ts"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.2.1",
+    "typeorm": "^0.3.20"
+  }
+}
