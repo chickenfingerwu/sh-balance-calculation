@@ -1,7 +1,7 @@
 {
   "name": "sh-balance-calculation-service",
   "version": "1.0.0",
-  "description": "a service that calculates withdrawal balance daily",
+  "description": "an application that calculates withdrawal balance daily for Salary Hero",
   "main": "src/index.js",
   "devDependencies": {
     "@types/node": "^20.11.24",
@@ -18,6 +18,7 @@
     "dev": "ts-node src/index.ts"
   },
   "dependencies": {
+    "cron": "^3.1.6",
     "moment": "^2.30.1",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.1",
