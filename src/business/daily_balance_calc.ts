@@ -1,6 +1,5 @@
 import {DataSource, Repository} from "typeorm";
-import {Worker} from "../entity/worker";
-import {Balance} from "../entity/balance";
+import {Balance, Worker} from "../entity";
 
 interface CompData {
     daysWorked: number;
@@ -50,9 +49,9 @@ export const processDailyCalcBalance = async (service: BalanceCalc) => {
             await queryRunner.connect()
             await queryRunner.startTransaction()
             try {
-                const data = await service.balanceRepo.createQueryBuilder("b").
+                const data = await service.workerRepo.createQueryBuilder("w").
                     useTransaction(true).
-                    innerJoinAndSelect("b.worker", "w", "b.worker_id = w.id").
+                    leftJoinAndSelect("w.balance", "b", "w.balance_id = b.id").
                     where("b.id >= :startId AND b.id <= :endId", {startId: sec.startId, endId: sec.endId}).
                     setLock("pessimistic_write").
                     getMany()
@@ -60,14 +59,16 @@ export const processDailyCalcBalance = async (service: BalanceCalc) => {
                 // tricky way to execute batch update statements with TypeORM
                 let query = ""
                 data.forEach((d: any) => {
-                    query += `UPDATE balance SET balance = ` +
-                        parseFloat(calcBalance({
-                            compensation: d.worker.compensation,
-                            daysWorked: d.worker.daysWorked,
-                            type: d.worker.type
-                        }).toFixed(3)) +
-                        `, latest_balance_updated_at = NOW()
-                    WHERE id = ` + d.id + `;`
+                    const balance = parseFloat(calcBalance({
+                        compensation: d.compensation,
+                        daysWorked: d.daysWorked,
+                        type: d.type
+                    }).toFixed(3))
+
+                    query += `INSERT INTO balance(worker_id, balance, latest_balance_updated_at)
+                             VALUES('` + d.id + `', ` + balance + `, NOW())
+                             ON CONFLICT (worker_id)
+                             DO UPDATE SET balance = ` + balance + `, latest_balance_updated_at = NOW();`
                 })
                 const result = await queryRunner.query(query)
 

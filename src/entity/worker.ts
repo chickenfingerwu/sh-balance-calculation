@@ -1,5 +1,6 @@
 import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn} from "typeorm"
+import {Balance} from "./balance";
 
 @Entity("worker")
 export class Worker {
@@ -23,4 +24,8 @@ export class Worker {
 
     @Column({name: "days_worked"})
     daysWorked: number
+
+    @OneToOne(() => Balance)
+    @JoinColumn({name: "balance_id"})
+    balance: Balance
 }
