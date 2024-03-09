@@ -1,4 +1,18 @@
 services:
+  app:
+    build: .
+    image: node:20
+    container_name: sh-balance-calculator
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_USERNAME=${DB_USERNAME:-admin}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE:-salary_hero}
   postgres:
     container_name: postgres_container
     image: postgres
@@ -8,7 +22,9 @@ services:
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
+      - ./src/migration/init-scripts:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 volumes:
   postgres:
+  postgres-1:

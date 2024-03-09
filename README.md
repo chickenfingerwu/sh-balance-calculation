@@ -1,11 +1,31 @@
 # sh-balance-calculation
 A program that calculate worker's withdrawal balance for Salary Hero
 
+# Installation
+Run ```npm install```
+
+### With Docker
+Run ```docker compose up -d```
+
+# Running the program
+First, use Docker to run Postgres or you can use your local Postgres and run the migration
+scripts in `src/migration/init-scripts`. Note: the program is using `salary_hero` database name
+
+Then, run `npm run start` and the program should start running.
+
+# Testing the program
+2 ways to test the program, when booting up, you will be asked a question `Do you want to run the program right away? [y/n] `,
+depending on the answer the program will run in 2 ways:
+1. y - The program will run right away and exit
+2. n - The program will start a cronjob and runs at 12am (UTC+7) every day
+
+After finished running, you can check the `balance` table and should see all the balances have been updated.
+
 # Folder structure
 - `src` contains all source code
-- `business` contains the business logic
+- `business` contains the main business logic
 - `entity` contains schema model of domain entities
-- `infra` setup overhead
+- `infra` setup infra overhead
 - `migration` migration files
 - `tests` test files
 

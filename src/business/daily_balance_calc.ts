@@ -1,10 +1,12 @@
 import { BalanceRepo } from "../entity";
 
+// contain data about compensation
 interface CompData {
     daysWorked: number;
     compensation: number;
 }
 
+// contain data about worker
 interface WorkerData {
     compensation: number;
     daysWorked: number;
@@ -18,12 +20,14 @@ export class BalanceCalc {
         this.balanceRepo = balanceRepo;
     }
 
+    // delegate updating balances record to repo
     processDailyCalcBalance = async () => {
         if (this.balanceRepo) {
             await this.balanceRepo.calcBalanceTable(this.calcBalance);
         }
     };
 
+    // calculate balance base on worker type
     calcBalance = (data: WorkerData): number => {
         if (data.type === "daily") {
             return this.calcBalanceForDailyWorker(data);

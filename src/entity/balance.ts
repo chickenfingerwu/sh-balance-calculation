@@ -65,11 +65,12 @@ export class BalanceRepo {
                 }
             } as FindOneOptions<Balance>);
         } catch(err) {
-            console.log("failed save balance: ", err);
+            console.log("failed get balance: ", err);
             throw err;
         }
     }
 
+    // wrap func into transaction
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async wrapTransaction( func: () => Promise<any>): Promise<any> {
         const queryRunner = this.db.createQueryRunner();
@@ -86,6 +87,7 @@ export class BalanceRepo {
         }
     }
 
+    // partition records by ID
     async partitionById(): Promise<number[][]> {
         const max = await this.repo.maximum("id") as number;
         const min = await this.repo.minimum("id") as number;
@@ -102,7 +104,7 @@ export class BalanceRepo {
     }) => number) {
         const partitions = await this.partitionById();
 
-        console.time("test 100000");
+        console.time("time taken:");
         const promises: Promise<void>[] = partitions.map(async (part): Promise<void> => {
             try {
                 await this.wrapTransaction(async () => {
@@ -150,10 +152,12 @@ export class BalanceRepo {
             }
         });
         await Promise.allSettled(promises);
-        console.timeEnd("test 100000");
+        console.timeEnd("time taken:");
     }
 }
 
+// partition a range of [min, max].
+// e.g: partition range [1, 10] into 2 partitions => [1, 5],[6, 10]
 export const partitionByRange = (min: number, max: number, partitionsCount: number): number[][] => {
     const partitions: number[][] = [];
     const step = Math.floor((max - min)/partitionsCount);
