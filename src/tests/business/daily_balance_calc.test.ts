@@ -1,7 +1,13 @@
 import {BalanceCalc} from "../../business";
+import {BalanceRepo} from "../../entity";
+
+jest.mock("../../entity/balance");
 
 describe("calculate balance", () => {
-    const mockBalanceCalc = new BalanceCalc();
+    const mockRepo = new BalanceRepo();
+    jest.spyOn(mockRepo, "calcBalanceTable").
+        mockImplementation(jest.fn());
+    const mockBalanceCalc = new BalanceCalc(mockRepo);
 
     test("calcBalanceForDailyWorker", () => {
         expect(mockBalanceCalc.calcBalanceForDailyWorker({
@@ -23,14 +29,26 @@ describe("calculate balance", () => {
                 type: "monthly",
                 compensation: 1000,
                 daysWorked: 5,
-            })).toBe(166.667);
+            })).toEqual(166.667);
         });
         test("daily worker", () => {
             expect(mockBalanceCalc.calcBalance({
                 type: "daily",
                 compensation: 1000,
                 daysWorked: 5,
-            })).toBe(5000);
+            })).toEqual(5000);
         });
+        test("invalid type", () => {
+            expect(mockBalanceCalc.calcBalance({
+                type: "test ignore",
+                compensation: 1000,
+                daysWorked: 5,
+            })).toEqual(0);
+        });
+    });
+
+    test("processDailyCalcBalance", () => {
+        mockBalanceCalc.processDailyCalcBalance();
+        expect(mockRepo.calcBalanceTable).toBeCalled();
     });
 });

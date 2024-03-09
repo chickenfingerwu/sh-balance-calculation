@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { BalanceCalc } from "./business";
-import { connectDB } from "./infra";
+import {connectDB, options} from "./infra";
 import {BalanceRepo} from "./entity";
 import { CronJob } from "cron";
 
 const start = async () => {
-    const db = await connectDB();
+    const db = await connectDB(options);
     const balanceRepo = new BalanceRepo(db);
     const service = new BalanceCalc(balanceRepo);
     try {
@@ -19,7 +19,6 @@ const start = async () => {
     await db.destroy();
 };
 
-start();
 new CronJob("0 0 0 * * *", async () => {
     console.log("starting job");
     await start();

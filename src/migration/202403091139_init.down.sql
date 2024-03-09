@@ -1,0 +1,1 @@
+DROP DATABASE salary_hero;

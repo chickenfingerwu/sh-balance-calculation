@@ -1,17 +1,15 @@
-import {DataSource} from "typeorm";
-import {options} from "./config";
+import {DataSource, DataSourceOptions} from "typeorm";
 
-export const connectDB = async (): Promise<DataSource> => {
+export const connectDB = async (options: DataSourceOptions): Promise<DataSource> => {
     try {
-        console.log("starting db")
-        const dataSource = new DataSource(options)
+        console.log("starting db");
+        const dataSource = new DataSource(options);
         if (!dataSource.isInitialized) {
-            await dataSource.initialize().then(()=>{},
-                (error) => console.log("Cannot connect: ", error),
-            )
+            await dataSource.initialize();
         }
-        return dataSource
+        return dataSource;
     } catch(e) {
-        throw new Error("error connect to database")
+        console.log("Cannot connect: ", e);
+        throw new Error("error connect to database");
     }
-}
+};

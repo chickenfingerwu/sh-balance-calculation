@@ -28,7 +28,11 @@ export class BalanceCalc {
         if (data.type === "daily") {
             return this.calcBalanceForDailyWorker(data);
         }
-        return this.calcBalanceForMonthlyWorker(data);
+        if (data.type === "monthly") {
+            return this.calcBalanceForMonthlyWorker(data);
+        }
+        console.warn("invalid worker type: ", data.type);
+        return 0;
     };
 
     calcBalanceForDailyWorker = (data: CompData): number => {
