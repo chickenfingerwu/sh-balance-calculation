@@ -12,18 +12,20 @@ interface WorkerData {
 }
 
 export class BalanceCalc {
-    balanceRepo: BalanceRepo;
+    balanceRepo?: BalanceRepo;
 
-    constructor(balanceRepo: BalanceRepo) {
+    constructor(balanceRepo?: BalanceRepo) {
         this.balanceRepo = balanceRepo;
     }
 
     processDailyCalcBalance = async () => {
-        await this.balanceRepo.calcBalanceTable(this.calcBalance);
+        if (this.balanceRepo) {
+            await this.balanceRepo.calcBalanceTable(this.calcBalance);
+        }
     };
 
     calcBalance = (data: WorkerData): number => {
-        if (data.type == "daily") {
+        if (data.type === "daily") {
             return this.calcBalanceForDailyWorker(data);
         }
         return this.calcBalanceForMonthlyWorker(data);

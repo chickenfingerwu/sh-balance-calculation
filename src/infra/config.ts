@@ -4,12 +4,12 @@ import {DataSourceOptions} from "typeorm";
 export const options: DataSourceOptions = {
     type: "postgres",
     host: DB_HOST,
-    port: parseInt(DB_PORT ? DB_PORT : ''),
+    port: parseInt(DB_PORT ? DB_PORT : ""),
     username: DB_USERNAME,
     password: DB_PASSWORD,
     database: DB_DATABASE,
-    logging: true,
+    // logging: true, // enable when dev
     entities: [
         "src/entity/*.ts"
     ],
-}
+};

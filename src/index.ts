@@ -19,6 +19,7 @@ const start = async () => {
     await db.destroy();
 };
 
+start();
 new CronJob("0 0 0 * * *", async () => {
     console.log("starting job");
     await start();
