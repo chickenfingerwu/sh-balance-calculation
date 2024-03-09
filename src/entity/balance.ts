@@ -9,7 +9,7 @@ export class Balance {
     @PrimaryGeneratedColumn("increment")
         id: number;
 
-    @Column({name: "worker_id"})
+    @Column({name: "worker_id", type: "uuid"})
         workerID: string;
 
     @OneToOne(() => Worker)
@@ -19,10 +19,10 @@ export class Balance {
     @Column({type: "float"})
         balance: number;
 
-    @Column({name: "latest_balance_updated_at"})
+    @Column({name: "latest_balance_updated_at", type: "timestamp"})
         latestBalanceUpdatedAt: Date;
 
-    @Column({name: "days_worked"})
+    @Column({name: "days_worked", type: "int"})
         daysWorked: number;
 }
 

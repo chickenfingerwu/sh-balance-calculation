@@ -6,18 +6,18 @@ export class Worker {
     @PrimaryGeneratedColumn("uuid")
         id: string;
 
-    @Column({name: "first_name"})
+    @Column({name: "first_name", type: "varchar", length: 50})
         firstName: string;
 
-    @Column({name: "last_name"})
+    @Column({name: "last_name", type: "varchar", length: 50})
         lastName: string;
 
-    @Column({name: "age"})
+    @Column({name: "age", type: "int"})
         age: number;
 
-    @Column({name: "compensation"})
+    @Column({name: "compensation", type: "float"})
         compensation: number;
 
-    @Column({name: "type"})
+    @Column({name: "type", type: "varchar", length: 50})
         type: string;
 }
