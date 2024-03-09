@@ -4,6 +4,9 @@ import { OneToOne } from "typeorm";
 import { Worker } from "./worker";
 import { JoinColumn } from "typeorm";
 
+const COUNT_PER_BATCH = 500;
+const PARTITIONS_COUNT = 4;
+
 @Entity("balance")
 export class Balance {
     @PrimaryGeneratedColumn("increment")
@@ -86,7 +89,7 @@ export class BalanceRepo {
     async partitionById(): Promise<number[][]> {
         const max = await this.repo.maximum("id") as number;
         const min = await this.repo.minimum("id") as number;
-        return partitionByRange(min, max, 4);
+        return partitionByRange(min, max, PARTITIONS_COUNT);
     }
 
     // algorithm:
@@ -99,7 +102,7 @@ export class BalanceRepo {
     }) => number) {
         const partitions = await this.partitionById();
 
-        console.time("test 1000000");
+        console.time("test 100000");
         const promises: Promise<void>[] = partitions.map(async (part): Promise<void> => {
             try {
                 await this.wrapTransaction(async () => {
@@ -136,7 +139,7 @@ export class BalanceRepo {
                                  DO UPDATE SET balance = ` + balance + ", days_worked = " + daysWorked + ", latest_balance_updated_at = NOW();";
 
                         // upsert by batch of 500 queries
-                        if (i % 500 == 0 || i == data.length - 1) {
+                        if (i % COUNT_PER_BATCH == 0 || i == data.length - 1) {
                             await this.repo.query(query);
                         }
                     }
@@ -147,7 +150,7 @@ export class BalanceRepo {
             }
         });
         await Promise.allSettled(promises);
-        console.timeEnd("test 1000000");
+        console.timeEnd("test 100000");
     }
 }
 
