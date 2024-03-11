@@ -57,32 +57,87 @@ describe("balance repo", () => {
         await db.destroy();
     });
 
-    test("calcBalanceTable", async () => {
-        const balanceCalc = new BalanceCalc(balanceRepo);
-        await balanceRepo.calcBalanceTable(balanceCalc.calcBalance);
+    describe("calcBalanceTable", () => {
+        test("check correct calculation", async () => {
+            const balanceCalc = new BalanceCalc(balanceRepo);
+            await balanceRepo.calcBalanceTable(balanceCalc.calcBalance);
 
-        const expected: Balance[] = [
-            {
+            const expected: Balance[] = [
+                {
+                    id: 1,
+                    workerID: "e8201668-3a9d-4ea2-aed9-4b07e8225df3",
+                    balance: 366.667,
+                    daysWorked: 11,
+                } as Balance,
+                {
+                    id: 2,
+                    workerID: "862736b8-80db-4860-b174-5bbae4561138",
+                    balance: 12000,
+                    daysWorked: 10,
+                } as Balance
+            ];
+
+            for (const d of mockWorkerData) {
+                const actual = await balanceRepo.getBalanceBy(d.id);
+                const exp = expected.find(e => e.workerID === d.id);
+                expect(actual?.balance).toBe(exp!.balance);
+                expect(actual?.daysWorked).toBe(exp!.daysWorked);
+            }
+        });
+        test("check not repeat calculation on same day", async () => {
+            const balanceCalc = new BalanceCalc(balanceRepo);
+
+            // update once
+            await balanceRepo.calcBalanceTable(balanceCalc.calcBalance);
+
+            // add new worker
+            const copyMockWorkerData = mockWorkerData;
+            const newWorker = {
+                id: "0e429f68-12a1-49eb-89b4-fa88ccdb1f57",
+                compensation: 1200,
+                type: "monthly"
+            } as Worker;
+            await workerRepo.save(newWorker);
+            copyMockWorkerData.push(newWorker);
+
+            // add new balance
+            await balanceRepo.saveBalance({
                 id: 1,
-                workerID: "e8201668-3a9d-4ea2-aed9-4b07e8225df3",
-                balance: 366.667,
-                daysWorked: 11,
-            } as Balance,
-            {
-                id: 2,
-                workerID: "862736b8-80db-4860-b174-5bbae4561138",
-                balance: 12000,
+                workerID: "0e429f68-12a1-49eb-89b4-fa88ccdb1f57",
                 daysWorked: 10,
-            } as Balance
-        ];
+            } as Balance);
 
-        let actual = await balanceRepo.getBalance(mockWorkerData[0].id);
-        expect(actual?.balance).toBe(expected[0].balance);
-        expect(actual?.daysWorked).toBe(expected[0].daysWorked);
+            // should only update new worker balance
+            await balanceRepo.calcBalanceTable(balanceCalc.calcBalance);
 
-        actual = await balanceRepo.getBalance(mockWorkerData[1].id);
-        expect(actual?.balance).toBe(expected[1].balance);
-        expect(actual?.daysWorked).toBe(expected[1].daysWorked);
+            const expected: Balance[] = [
+                {
+                    id: 1,
+                    workerID: "e8201668-3a9d-4ea2-aed9-4b07e8225df3",
+                    balance: 366.667,
+                    daysWorked: 11,
+                } as Balance,
+                {
+                    id: 2,
+                    workerID: "862736b8-80db-4860-b174-5bbae4561138",
+                    balance: 12000,
+                    daysWorked: 10,
+                } as Balance,
+                {
+                    id: 3,
+                    workerID: "0e429f68-12a1-49eb-89b4-fa88ccdb1f57",
+                    balance: 440,
+                    daysWorked: 11,
+                } as Balance
+            ];
+
+            for (const d of copyMockWorkerData) {
+                const actual = await balanceRepo.getBalanceBy(d.id);
+                const exp = expected.find(e => e.workerID === d.id);
+                expect(actual?.balance).toBe(exp!.balance);
+                expect(actual?.daysWorked).toBe(exp!.daysWorked);
+            }
+        });
     });
 });
 

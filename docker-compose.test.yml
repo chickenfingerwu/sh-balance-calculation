@@ -8,6 +8,7 @@ services:
       PGDATA: /data/postgres-test
     volumes:
       - postgres-test:/data/postgres-test
+      - ./src/tests/migration/init-scripts:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
 volumes:

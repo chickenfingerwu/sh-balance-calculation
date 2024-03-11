@@ -3,6 +3,7 @@ import {Entity, PrimaryGeneratedColumn, Column, Repository, DataSource, FindOneO
 import { OneToOne } from "typeorm";
 import { Worker } from "./worker";
 import { JoinColumn } from "typeorm";
+import moment from "moment";
 
 const COUNT_PER_BATCH = 500;
 const PARTITIONS_COUNT = 4;
@@ -35,6 +36,7 @@ interface CompData {
     compensation: number;
     days_worked: number;
     type: string;
+    latest_balance_updated_at: Date;
 }
 
 export class BalanceRepo {
@@ -57,7 +59,7 @@ export class BalanceRepo {
         }
     }
 
-    async getBalance(workerID: string): Promise<Balance | null> {
+    async getBalanceBy(workerID: string): Promise<Balance | null> {
         try {
             return this.repo.findOne({
                 where: {
@@ -112,7 +114,7 @@ export class BalanceRepo {
                     // query compensation data
                     // set row-lock to prevent concurrent write
                     const data: CompData[] = await this.repo.query(`
-                        SELECT b.days_worked, b.worker_id, w.compensation, w.type
+                        SELECT b.days_worked, b.worker_id, w.compensation, w.type, b.latest_balance_updated_at
                         FROM balance b
                         INNER JOIN worker w ON b.worker_id = w.id
                         WHERE b.id >= $1 AND b.id <= $2
@@ -126,6 +128,9 @@ export class BalanceRepo {
                     let query = "";
                     for (let i = 0; i < data.length; i++){
                         const d = data[i];
+                        if (moment(d.latest_balance_updated_at).isSame(new Date(), "day")) {
+                            continue;
+                        }
 
                         // auto increment days worked by 1
                         const daysWorked = d.days_worked + 1;
@@ -168,7 +173,9 @@ export const partitionByRange = (min: number, max: number, partitionsCount: numb
         startId = endId + 1;
         endId = startId + step;
     }
-    if (startId < max) {
+
+    // edge case - last partition
+    if (startId <= max) {
         partitions.push([startId, Math.min(max, endId)]);
     }
     return partitions;
