@@ -57,6 +57,15 @@ Steps:
 2. Create new thread per partition. 
 3. On each thread, do calculation & update queries by batch of `COUNT_PER_BATCH` (default 500)
 
+Pros:
+- Simple architecture, low infra overhead (only service & database components needed).
+- Optimal atomic writes.
+- Fast concurrent updates.
+
+Cons:
+- Coupled read & write processes to 1 database & service - read performance can affect write and vice versa.
+- If database goes down, we can't read or write balances.
+
 Benchmark:
 - 100.000 records: 37.137s
 - 1.000.000 records: TBD
