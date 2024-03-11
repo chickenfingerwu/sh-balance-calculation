@@ -8,7 +8,10 @@ Run ```npm install```
 Run ```docker compose up -d```
 
 # Running the program
-First, use Docker to run Postgres or you can use your local Postgres and run the migration
+First, rename or copy `.env.example` to `.env` - this file contains all environment variables
+needed to run the program.
+
+Then, use Docker ```docker compose up -d postgres``` to run Postgres or you can use your local Postgres and run the migration
 scripts in `src/migration/init-scripts`. Note: the program is using `salary_hero` database name
 
 Then, run `npm run start` and the program should start running.
