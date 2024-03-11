@@ -63,7 +63,7 @@ Pros:
 - Fast concurrent updates.
 
 Cons:
-- Coupled read & write processes to 1 database & service - read performance can affect write and vice versa.
+- Coupled read & write processes to same database & service - read performance can affect write and vice versa.
 - If database goes down, we can't read or write balances.
 
 Benchmark:
