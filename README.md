@@ -55,7 +55,7 @@ Steps:
 3. On each thread, do calculation & update queries by batch of `COUNT_PER_BATCH` (default 500)
 
 Pros:
-- Simple architecture, low infra overhead needed (only 1 database).
+- Simple architecture, low infra overhead (only service & database components needed).
 - Optimal atomic writes.
 - Fast concurrent updates.
 
