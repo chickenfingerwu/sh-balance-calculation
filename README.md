@@ -33,7 +33,7 @@ After finished running, you can check the `balance` table and should see all the
 
 # Model schema
 
-![schema.jpg](..%2F..%2FDownloads%2Fschema.jpg)
+![schema](https://github.com/chickenfingerwu/sh-balance-calculation/assets/32426957/524877b5-ec5a-4792-9d9a-45a53d935eb7)
 
 # High level design/idea
 
@@ -42,7 +42,7 @@ This process has 2 steps:
 1. Scan for data of worker (compensation, type of worker, days worked)
 2. Do calculation base on worker data and update `Balance` table
 
-![architecture.jpg](..%2F..%2FDownloads%2Farchitecture.jpg)
+![architecture](https://github.com/chickenfingerwu/sh-balance-calculation/assets/32426957/55fa4fdb-43ab-4e69-ab18-4fbd0beb9472)
 
 In order to efficiently do scan & update, we need an algorithm that is optimal and non-blocking:
 
@@ -77,7 +77,7 @@ it's always easier to break it down to small digestible chunks. Thus, it's impor
 the data that needs processing - `Balance` records - into partitions based on its ID. Here I use serial ID  for the `Balance` table, which makes it much easier to partition. 
 After partitioning the data, we continue breaking data down into batches, this is so that in case of huge partition size, we won't overload the database.
 In code, I set default batch size to 500 (just an arbitrary number, need further research to find optimal batch size)
-which means Postgres will execute 500 queries in batches (per partition) at a time in order to do our calculation.
+which means Postgres will execute 500 queries in batches (per partition) concurrently in order to do our calculation.
 
 All of this needs to be executed inside transactions with row-level locking so as to prevent concurrent write that can happen during our update.
 
